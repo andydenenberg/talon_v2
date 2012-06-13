@@ -1,5 +1,7 @@
 Talon::Application.routes.draw do
   devise_for :users
+  resources :users
+  
 
   resources :time_logs do
     collection do
