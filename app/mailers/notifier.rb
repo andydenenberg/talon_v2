@@ -1,13 +1,14 @@
 class Notifier < ActionMailer::Base
-  default :from => "andy@ospreypointpartners.com"
+  default :from => "talon@denenberg.net"
 
 include SendGrid
 
   # send a signup email to the user, pass in the user object that contains the user's email address
-  def signup_email(user)
+  def notify_administrator(user)
     @user = user
     mail( :to => 'andy@denenberg.net' , # user.email 
-          :subject => "New User has signed up" )
+          :subject => "A new Talon User has been created" ,
+          :body => user.email + ' has been created' )
 #         , :body => user.name + " " + user.email + " " + user.comments )
   end
 end

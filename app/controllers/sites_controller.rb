@@ -24,11 +24,12 @@ skip_before_filter :authenticate_user!, :only => [ :main ]
 
 
   def main
+      
     @ok = Site.new.ok
     @unable = Site.new.unable
     @warning = Site.new.warning
     @sites = Site.all
-    @checker = User.find(:all, :conditions => [ 'email = :em', :em => 'andy@denenberg.net' ] )
+    @checker = User.find(:all, :conditions => [ 'email = :em', :em => 'talon@denenberg.net' ] )
 #    @point_range = Site.new.log_stats
   end
   

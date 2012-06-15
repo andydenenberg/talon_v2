@@ -75,7 +75,7 @@
           <div class="span4">
             <h3>Status</h3>
 			<div id="pie8" ></div><br>
-			Last Polled: <%= @checker[0].last_sign_in_at != nil ? @checker[0].last_sign_in_at.strftime("%m/%d %H:%M %p") : 'not checked' %>
+			Last Polled: <%= @checker.length > 0 and @checker[0].last_sign_in_at != nil ? @checker[0].last_sign_in_at.strftime("%m/%d %H:%M %p") + ' CST': 'not checked' %>
           </div>
         </div>
       </div>

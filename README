@@ -1,22 +1,9 @@
-
 Monitor Status of critical devices
 
 Keeps track of status and response delays over time.
 
 Each site being monitored has an associated time series.
 The time series records for each site is recorded in a model called time_log.
-
-The fields in the time_log are:
-site_id:integer
-check_time:datetime
-status:string
-delay:float
-watcher:string
-
-The model relationship is:
-:time_log belongs_to :sites
-and
-:sites has many :time_logs that are :dependent => :destroy
 
 For simplicity, the system uses uses html form put and post for login and to update the status and time_log info.  Json is used to read info from the repository.
 
