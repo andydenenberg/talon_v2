@@ -18,6 +18,7 @@ Talon::Application.routes.draw do
       get 'test'
       get 'data'
       get 'site_ids'
+      get 'system_down'
     end
   end
   

@@ -22,15 +22,28 @@ skip_before_filter :authenticate_user!, :only => [ :main ]
     @sites_for_select = Site.new.sites_for_select
   end
 
+  # make a get request on this method to send off the system_down message
+  def system_down
+    Notifier.system_down.deliver
+    redirect_to root_path
+  end
 
-  def main
-      
+  def main      
     @ok = Site.new.ok
     @unable = Site.new.unable
     @warning = Site.new.warning
     @sites = Site.all
     @checker = User.find(:all, :conditions => [ 'email = :em', :em => 'talon@denenberg.net' ] )
 #    @point_range = Site.new.log_stats
+
+    ldate = Hash.new
+    ldate['logged_in'] = @checker[0].last_sign_in_at
+
+      respond_to do |format|
+        format.html # index.html.erb
+        format.json { render json: ldate }
+      end
+
   end
   
   def index

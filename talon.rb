@@ -24,10 +24,32 @@ class Checker
     rescue
       return false
     end
-    return login
-    
+    return login    
   end
 
+  def system_down
+    page = @agent.get(@base_url + '/sites/system_down')  
+  end
+  
+  def check_checker
+    page = @agent.get(@base_url + '/sites/main.json')
+    raw_data = page.body
+    list = JSON.parse(raw_data)
+    
+    if list["logged_in"]
+      temp = (list["logged_in"]).split('T')
+      date = temp[0]
+      time = (temp[1]).split('Z')[0] 
+      list["logged_in"] = date + ' ' + time
+      
+      last_check = Time.parse(list['logged_in'])
+      now = Time.now
+      wait = now.to_i - last_check.to_i
+      return wait      
+    end
+       
+  end
+  
   def get_list
     page = @agent.get(@base_url + '/sites.json')
     raw_data = page.body
@@ -177,23 +199,29 @@ if ARGV[0] != nil
  repo_password = ARGV[3]
  watcher_delay = (ARGV[4]).to_i
 else
-  puts "argument list: checker_name, repo_url, repo_email, repo_password, delay"
+  puts "argument list: checker_name('checker' is reserved), repo_url(http://...), repo_email, repo_password, delay"
   exit 1
 end
 
 while 1 < 2
-
   sleep(watcher_delay)
-
   talon = Checker.new(repo_url)
-
-  if talon.login( repo_email, repo_password )  
-    
-          puts "\ntop of loop"
-          
-          check_list = talon.get_list
-          talon.check_list(check_list, repo_email, repo_password, repo_url, checker_name)
-                   
+  if talon.login( repo_email, repo_password )   
+          case checker_name
+            when 'checker'
+              delay = talon.check_checker
+              puts delay.to_s + ' seconds' 
+              
+              if delay > 200
+                puts 'Delay exceeded 200 seconds'
+                talon.system_down
+              end
+                
+            else              
+              puts "\ntop of loop"
+              check_list = talon.get_list
+              talon.check_list(check_list, repo_email, repo_password, repo_url, checker_name)
+            end
    else
      puts "\nFailed to login to Repo"
    end

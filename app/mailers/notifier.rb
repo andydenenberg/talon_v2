@@ -11,6 +11,15 @@ include SendGrid
           :body => user.email + ' has been created' )
 #         , :body => user.name + " " + user.email + " " + user.comments )
   end
+
+    # send a notification that the polling system is down
+    def system_down
+      mail( :to => 'andy@denenberg.net' , # user.email 
+            :subject => "Talon Watcher is not updating" ,
+            :body => "Checker has determined that Talon Watcher is not updating" )
+  #         , :body => user.name + " " + user.email + " " + user.comments )
+    end
+
 end
 
 # "name"
