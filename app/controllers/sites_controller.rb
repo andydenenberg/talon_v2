@@ -24,7 +24,8 @@ skip_before_filter :authenticate_user!, :only => [ :main ]
 
   # make a get request on this method to send off the system_down message
   def system_down
-    Notifier.system_down.deliver
+    down_count = params[:down_count]
+    Notifier.system_down(down_count).deliver
     redirect_to root_path
   end
 

@@ -13,10 +13,11 @@ include SendGrid
   end
 
     # send a notification that the polling system is down
-    def system_down
+    def system_down(down_count)
       mail( :to => 'andy@denenberg.net' , # user.email 
             :subject => "Talon Watcher is not updating" ,
-            :body => "Checker has determined that Talon Watcher is not updating" )
+            :body => "Checker has determined that Talon Watcher is not updating\n\n" +
+            "The Watcher is down for the " + down_count.to_i.ordinalize + " time" )
   #         , :body => user.name + " " + user.email + " " + user.comments )
     end
 

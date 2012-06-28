@@ -27,8 +27,8 @@ class Checker
     return login    
   end
 
-  def system_down
-    page = @agent.get(@base_url + '/sites/system_down')  
+  def system_down(down_count)
+    page = @agent.get(@base_url + '/sites/system_down?down_count=' + down_count.to_s )  
   end
   
   def check_checker
@@ -192,61 +192,63 @@ class Updater
 end
 
 
-if ARGV[0] != nil
- checker_name = ARGV[0]
- repo_url = ARGV[1]
- repo_email = ARGV[2]
- repo_password = ARGV[3]
- watcher_delay = (ARGV[4]).to_i
-else
-  puts "argument list: checker_name('checker' is reserved), repo_url(http://...), repo_email, repo_password, delay"
-  exit 1
-end
+# main loop
+  # Initialize
+    if ARGV[0] != nil
+     checker_name = ARGV[0]
+     repo_url = ARGV[1]
+     repo_email = ARGV[2]
+     repo_password = ARGV[3]
+     watcher_delay = (ARGV[4]).to_i
+    else
+      puts "argument list: checker_name('checker' is reserved), repo_url(http://...), repo_email, repo_password, delay"
+      exit 1
+    end
 
-while 1 < 2
-  sleep(watcher_delay)
-  talon = Checker.new(repo_url)
-  if talon.login( repo_email, repo_password )   
-          case checker_name
-            when 'checker'
-              delay = talon.check_checker
-              puts delay.to_s + ' seconds' 
+    down_count = 0  # set count_down for number of notifications
+
+   while true # forever
+      talon = Checker.new(repo_url)
+      if talon.login( repo_email, repo_password )   
+              case checker_name
+                when 'checker'
+                  delay = talon.check_checker
+                  puts delay.to_s + ' seconds' 
               
-              if delay > 200
-                puts 'Delay exceeded 200 seconds'
-                talon.system_down
-              end
+                  if delay > 200 && down_count < 3
+                    down_count += 1
+                    puts 'Delay exceeded 200 seconds'
+                    talon.system_down(down_count)
+                  end
                 
-            else              
-              puts "\ntop of loop"
-              check_list = talon.get_list
-              talon.check_list(check_list, repo_email, repo_password, repo_url, checker_name)
+                else              
+                  puts "\ntop of loop"
+                  check_list = talon.get_list
+                  talon.check_list(check_list, repo_email, repo_password, repo_url, checker_name)
+                end
+       else
+         puts "\nFailed to login to Repo"
+       end
+       talon = nil
+       sleep(watcher_delay)
+    end
+
+    class Ping_sweep  
+        require 'net/ping'
+        base = '192.168.0.'
+        p2 = Net::Ping::External.new('www.denenberg.net')
+        response = p2.ping
+        puts response
+        (1..255).each do |i|
+          addr = base + i.to_s
+          p1 = Net::Ping::External.new(addr, port=7, timeout=1)
+          response = p1.ping?
+            if response
+                puts addr + ' - ' + response.to_s
             end
-   else
-     puts "\nFailed to login to Repo"
-   end
-   talon = nil
-end
-
-class Ping_sweep
-  
-    require 'net/ping'
-
-    base = '192.168.0.'
-
-    p2 = Net::Ping::External.new('www.denenberg.net')
-    response = p2.ping
-    puts response
-
-    (1..255).each do |i|
-      addr = base + i.to_s
-      p1 = Net::Ping::External.new(addr, port=7, timeout=1)
-      response = p1.ping?
-        if response
-            puts addr + ' - ' + response.to_s
         end
     end
 
-end
+
 
 
